@@ -1,5 +1,4 @@
-﻿using Business.Models;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace Business.Models.Validations.Docs
 {
