@@ -10,7 +10,7 @@ using Web.ViewModels;
 namespace Web.Controllers
 {
     [Route("api/fornecedores")]
-
+    [ApiController]
     public class FornecedoresController : MainController
     {
         private readonly IFornecedorRepository _fornecedorRepository;
