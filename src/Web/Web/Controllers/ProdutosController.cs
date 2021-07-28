@@ -85,6 +85,44 @@ namespace Web.Controllers
             return CustomResponse(produtoViewModel);
         }
 
+        /// <summary>
+        /// Atualizar produto
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="produtoViewModel"></param>
+        /// <returns></returns>
+
+        [HttpPut("id:guid")]
+        public async Task<IActionResult> Atualizar(Guid id, ProdutoViewModel produtoViewModel)
+        {
+            if (id != produtoViewModel.Id) return NotFound();
+            var produtoAtualizacao = await ObterProduto(id);
+            produtoViewModel.Imagem = produtoAtualizacao.Imagem;
+
+            if (!ModelState.IsValid) return CustomResponse(ModelState);
+
+            if (produtoViewModel.ImagemUpload != null)
+            {
+                var imagemNome = Guid.NewGuid() + "-" + produtoViewModel.Imagem;
+                if (!UploadArquivo(produtoViewModel.ImagemUpload, imagemNome))
+                {
+                    return CustomResponse(ModelState);
+                }
+
+                produtoAtualizacao.Imagem = imagemNome;
+            }
+
+            produtoAtualizacao.Nome = produtoViewModel.Nome;
+            produtoAtualizacao.Descricao = produtoViewModel.Descricao;
+            produtoAtualizacao.Valor = produtoViewModel.Valor;
+            produtoAtualizacao.Ativo = produtoViewModel.Ativo;
+
+            await _produtoService.Atualizar(_mapper.Map<Produto>(produtoAtualizacao));
+
+            return CustomResponse(produtoAtualizacao);
+
+        }
+
 
         /// <summary>
         /// Adicionar Alternativo IFORMFILE
@@ -110,6 +148,18 @@ namespace Web.Controllers
             return CustomResponse(produtoImagemViewModel);
         }
 
+        /// <summary>
+        /// Limitar upload de imagem em 40 MB
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+
+        //[RequestSizeLimit(40000000)]
+        //[HttpPost("imagem")]
+        //public async Task<ActionResult<ProdutoViewModel>> AdicionarImagem(IFormFile file)
+        //{
+        //    return Ok(file);
+        //}
 
         /// <summary>
         /// Exclui os produtos
