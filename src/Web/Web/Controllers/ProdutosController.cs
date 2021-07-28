@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Business.Interfaces;
 using Business.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -83,12 +84,39 @@ namespace Web.Controllers
 
             return CustomResponse(produtoViewModel);
         }
+
+
+        /// <summary>
+        /// Adicionar Alternativo IFORMFILE
+        /// </summary>
+        /// <param name="produtoViewModel"></param>
+        /// <returns></returns>
+
+        [HttpPost("Adicionar")]
+        public async Task<ActionResult<ProdutoViewModel>> AdicionarAlternativo(ProdutoImagemViewModel produtoImagemViewModel)
+        {
+            if (!ModelState.IsValid) return CustomResponse(ModelState);
+
+            var imgprefixo = Guid.NewGuid() + "_";
+            if (!await UploadAlternativo(produtoImagemViewModel.ImagemUpload, imgprefixo))
+            {
+                return CustomResponse(ModelState);
+            }
+
+            produtoImagemViewModel.Imagem = imgprefixo + produtoImagemViewModel.ImagemUpload.FileName;
+
+            await _produtoService.Adicionar(_mapper.Map<Produto>(produtoImagemViewModel));
+
+            return CustomResponse(produtoImagemViewModel);
+        }
+
+
         /// <summary>
         /// Exclui os produtos
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        
+
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult<FornecedorViewModel>> Excluir(Guid id)
         {
@@ -103,6 +131,27 @@ namespace Web.Controllers
         private async Task<ProdutoViewModel> ObterProduto(Guid id)
         {
             return _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterProdutoFornecedor(id));
+        }
+
+        private async Task<Boolean> UploadAlternativo(IFormFile arquivo, string imgprefixo)
+        {
+            if (arquivo == null || arquivo.Length == 0)
+            {
+                NotificarErro("Forneça uma imagem para este produto!");
+                return false;
+            }
+
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imgprefixo + arquivo.FileName);
+
+            if (System.IO.File.Exists(path))
+            {
+                NotificarErro("Já existe um arquivo com este nome!");
+                return false;
+            }
+
+            using var stream = new FileStream(path, FileMode.Create);
+            await arquivo.CopyToAsync(stream);
+            return true;
         }
 
         private bool UploadArquivo(string arquivo, string imgNome)
