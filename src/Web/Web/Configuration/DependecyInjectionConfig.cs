@@ -3,15 +3,18 @@ using Business.Notificacoes;
 using Business.Services;
 using Data.Context;
 using Data.Repository;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Web.Configuration
 {
     public static class DependecyInjectionConfig
     {
-        public static IServiceCollection ResolveDependencies(this IServiceCollection services)
+        public static IServiceCollection ResolveDependencies(this IServiceCollection services,
+                                                             IConfiguration config)
         {
-            services.AddScoped<ProdutosDbContext>();
+            services.AddDbContext<ProdutosDbContext>(options => options.UseSqlServer(config.GetConnectionString("DefaultConnection")));
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IFornecedorRepository, FornecedorRepository>();
             services.AddScoped<IEnderecoRepository, EnderecoRepository>();
@@ -19,6 +22,7 @@ namespace Web.Configuration
             services.AddScoped<INotificador, Notificador>();
             services.AddScoped<IFornecedorService, FornecedorService>();
             services.AddScoped<IProdutoService, ProdutoService>();
+
 
             return services;
         }

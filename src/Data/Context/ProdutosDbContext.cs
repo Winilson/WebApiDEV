@@ -1,19 +1,22 @@
 ﻿using Business.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Reflection;
 
 namespace Data.Context
 {
-    public class ProdutosDbContext: DbContext
+    public class ProdutosDbContext : DbContext
     {
-        public ProdutosDbContext(DbContextOptions options): base(options)
+        public ProdutosDbContext()
+        {
+        }
+
+        public ProdutosDbContext(DbContextOptions<ProdutosDbContext> options) : base(options)
         {
             {
                 ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 ChangeTracker.AutoDetectChangesEnabled = false;
             }
-
-
         }
 
         public DbSet<Produto> Produtos { get; set; }
@@ -28,6 +31,5 @@ namespace Data.Context
 
             base.OnModelCreating(modelBuilder);
         }
-
     }
 }

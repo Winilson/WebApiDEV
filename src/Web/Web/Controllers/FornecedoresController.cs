@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Business.Interfaces;
 using Business.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using Web.ViewModels;
 
 namespace Web.Controllers
 {
+    [Authorize]
     [Route("api/fornecedores")]
     [ApiController]
     public class FornecedoresController : MainController
@@ -41,7 +43,7 @@ namespace Web.Controllers
         /// Obtém todos os fornecedores
         /// </summary>
         /// <returns></returns>
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IEnumerable<FornecedorViewModel>> ObterTodos()
         {
