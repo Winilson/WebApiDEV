@@ -23,8 +23,7 @@ namespace Web.Configuration
 
             services.ResolveDependencies(configuration);
             services.AddAutoMapper(typeof(Startup));
-
-
+            
             return services;
         }
 

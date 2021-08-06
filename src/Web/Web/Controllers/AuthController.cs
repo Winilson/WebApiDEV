@@ -1,7 +1,13 @@
 ﻿using Business.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using System.Threading.Tasks;
+using Web.Extensions;
 using Web.ViewModels;
 
 namespace Web.Controllers
@@ -11,12 +17,14 @@ namespace Web.Controllers
     {
         private readonly SignInManager<IdentityUser> _signManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly AppSettings _appSettings;
 
         public AuthController(INotificador notificador, SignInManager<IdentityUser> signInManager,
-                              UserManager<IdentityUser> userManager) : base(notificador)
+                              UserManager<IdentityUser> userManager, IOptions<AppSettings> appSettings) : base(notificador)
         {
             _signManager = signInManager;
             _userManager = userManager;
+            _appSettings = appSettings.Value;
         }
 
         /// <summary>
@@ -42,7 +50,7 @@ namespace Web.Controllers
             if (result.Succeeded)
             {
                 await _signManager.SignInAsync(user, false);
-                return CustomResponse(registerUser);
+                return CustomResponse(GerarJwt());
             }
 
             foreach (var error in result.Errors)
@@ -69,7 +77,7 @@ namespace Web.Controllers
 
             if (result.Succeeded)
             {
-                return CustomResponse(loginUser);
+                return CustomResponse(GerarJwt());
             }
             if (result.IsLockedOut)
             {
@@ -79,6 +87,21 @@ namespace Web.Controllers
 
             NotificarErro("Usuário ou senha incorretos");
             return CustomResponse(loginUser);
+        }
+
+        private string GerarJwt()
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+            var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
+            {
+                Issuer = _appSettings.Emissor,
+                Audience = _appSettings.ValidoEm,
+                Expires = DateTime.UtcNow.AddHours(_appSettings.ExpiracaoHoras),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            });
+            var encodedToken = tokenHandler.WriteToken(token);
+            return encodedToken;
         }
     }
 }
