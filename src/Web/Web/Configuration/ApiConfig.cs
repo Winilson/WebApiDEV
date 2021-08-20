@@ -23,7 +23,7 @@ namespace Web.Configuration
 
             services.ResolveDependencies(configuration);
             services.AddAutoMapper(typeof(Startup));
-            
+
             return services;
         }
 
@@ -39,9 +39,7 @@ namespace Web.Configuration
                 endpoints.MapControllers();
             });
 
-
             return app;
         }
-
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Business.Interfaces;
 using Business.Models;
+using DevIO.Api.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,6 +14,7 @@ namespace Web.Controllers
     [Authorize]
     [Route("api/fornecedores")]
     [ApiController]
+
     public class FornecedoresController : MainController
     {
         private readonly IFornecedorRepository _fornecedorRepository;
@@ -43,7 +45,6 @@ namespace Web.Controllers
         /// Obtém todos os fornecedores
         /// </summary>
         /// <returns></returns>
-        [AllowAnonymous]
         [HttpGet]
         public async Task<IEnumerable<FornecedorViewModel>> ObterTodos()
         {
@@ -72,6 +73,7 @@ namespace Web.Controllers
         /// <param name="fornecedorViewModel"></param>
         /// <returns></returns>
 
+        [ClaimsAuthorize("Fornecedor", "Adicionar")]
         [HttpPost]
         public async Task<ActionResult<FornecedorViewModel>> Adicionar(FornecedorViewModel fornecedorViewModel)
         {
@@ -88,7 +90,7 @@ namespace Web.Controllers
         /// <param name="id"></param>
         /// <param name="fornecedorViewModel"></param>
         /// <returns></returns>
-
+        [ClaimsAuthorize("Fornecedor", "Atualizar")]
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<FornecedorViewModel>> Atualizar(Guid id, FornecedorViewModel fornecedorViewModel)
         {
@@ -123,7 +125,7 @@ namespace Web.Controllers
         /// <param name="id"></param>
         /// <param name="enderecoViewModel"></param>
         /// <returns></returns>
-
+        [ClaimsAuthorize("Fornecedor", "Atualizar")]
         [HttpPut("atualizar-endereco/{id:guid}")]
         public async Task<ActionResult<EnderecoViewModel>> AtualizarEndereco(Guid id, EnderecoViewModel enderecoViewModel)
         {
@@ -145,9 +147,9 @@ namespace Web.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-
+        [ClaimsAuthorize("Fornecedor", "Remover")]
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<FornecedorViewModel>> Excluir(Guid id)
+        private async Task<ActionResult<FornecedorViewModel>> Excluir(Guid id)
         {
             var fornecedorViewModel = await ObterFornecedorEndereco(id);
 
@@ -157,12 +159,12 @@ namespace Web.Controllers
             return CustomResponse(fornecedorViewModel);
         }
 
-        public async Task<FornecedorViewModel> ObterFornecedorProdutosEndereco(Guid id)
+        private async Task<FornecedorViewModel> ObterFornecedorProdutosEndereco(Guid id)
         {
             return _mapper.Map<FornecedorViewModel>(await _fornecedorRepository.ObterFornecedorProdutosEndereco(id));
         }
 
-        public async Task<FornecedorViewModel> ObterFornecedorEndereco(Guid id)
+        private async Task<FornecedorViewModel> ObterFornecedorEndereco(Guid id)
         {
             return _mapper.Map<FornecedorViewModel>(await _fornecedorRepository.ObterFornecedorEndereco(id));
         }
