@@ -210,7 +210,7 @@ namespace Web.Controllers
 
             if (string.IsNullOrEmpty(arquivo))
             {
-                NotificarErro("Forneça uma imagem oara este produto");
+                NotificarErro("Forneça uma imagem para este produto");
                 return false;
             }
 
