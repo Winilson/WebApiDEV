@@ -34,7 +34,7 @@ namespace Web.Controllers
         public FornecedoresController(IFornecedorRepository fornecedorRepository,
                                       IFornecedorService fornecedorService,
                                       IEnderecoRepository enderecoRepository,
-                                      IMapper mapper, INotificador notificador) : base(notificador)
+                                      IMapper mapper, INotificador notificador, IUser user) : base(notificador, user)
         {
             _fornecedorRepository = fornecedorRepository;
             _fornecedorService = fornecedorService;

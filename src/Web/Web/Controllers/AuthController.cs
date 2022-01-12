@@ -22,7 +22,8 @@ namespace Web.Controllers
         private readonly AppSettings _appSettings;
 
         public AuthController(INotificador notificador, SignInManager<IdentityUser> signInManager,
-                              UserManager<IdentityUser> userManager, IOptions<AppSettings> appSettings) : base(notificador)
+                              UserManager<IdentityUser> userManager, IOptions<AppSettings> appSettings,
+                              IUser user) : base(notificador, user)
         {
             _signManager = signInManager;
             _userManager = userManager;
