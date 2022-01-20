@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 
 namespace Web.Configuration
 {
@@ -15,14 +16,34 @@ namespace Web.Configuration
                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
             );
 
-            services.AddControllers();
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("Development",
+                    builder =>
+                    builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .WithOrigins("localhost")
+                    .AllowCredentials());
+
+                options.AddPolicy("Production",
+                    builder =>
+                    builder.WithMethods("GET")
+                    .WithOrigins("localhost")
+                    .SetIsOriginAllowedToAllowWildcardSubdomains()
+                    //.WithHeaders(HeaderNames.ContentType, "x-custom-header")
+                    .AllowAnyHeader());
+
+            });
+
             services.ResolveDependencies(configuration);
             services.AddAutoMapper(typeof(Startup));
+            services.AddControllers();
 
             return services;
         }
